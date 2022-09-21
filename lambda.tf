@@ -1,25 +1,7 @@
-resource "null_resource" "copy_source" {
-  provisioner "local-exec" {
-    command = <<EOF
-if [ ! -d "build" ]; then
-  if [ ! -L "build" ]; then
-    #curl -L https://github.com/Widen/cloudfront-auth/archive/master.zip --output cloudfront-auth-master.zip
-    #unzip -q cloudfront-auth-master.zip -d build/
-    git clone --branch v1 https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git build
-    mkdir build/distributions
-    cp ${data.local_file.build-js.filename} build/build/build.js
-    cd build/ && npm i minimist && npm install && cd build && npm install
-  fi
-fi
-EOF
-  }
-}
-
 resource "null_resource" "build_lambda" {
-  depends_on = [null_resource.copy_source]
   triggers = {
     vendor                  = var.auth_vendor
-    cloudfront_distribution = var.cloudfront_distribution_name
+    cloudfront_distribution = var.name
     client_id               = var.client_id
     client_secret           = var.client_secret
     redirect_uri            = var.redirect_uri
@@ -27,6 +9,17 @@ resource "null_resource" "build_lambda" {
     session_duration        = var.session_duration
     authz                   = var.authz
     github_organization     = try(var.github_organization, "")
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+    rm -rf terraform-aws-cloudfront-auth && rm -rf build
+    git clone --branch v1 https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git terraform-aws-cloudfront-auth
+    mv terraform-aws-cloudfront-auth/function build
+    mkdir build/distributions
+    cp ${data.local_file.build-js.filename} build/build/build.js
+    cd build/ && npm i minimist && npm install && cd build && npm install
+EOF
   }
 
   provisioner "local-exec" {
@@ -40,7 +33,7 @@ resource "null_resource" "copy_lambda_artifact" {
   }
 
   provisioner "local-exec" {
-    command = "cp build/cloudfront-auth-master/distributions/${var.cloudfront_distribution_name}/${var.cloudfront_distribution_name}.zip lambda.zip"
+    command = "cp build/distributions/${var.name}/${var.name}.zip lambda.zip"
   }
 }
 
@@ -77,7 +70,7 @@ resource "aws_lambda_function" "this" {
   runtime          = "nodejs12.x"
   role             = aws_iam_role.lambda_role.arn
   filename         = "lambda.zip"
-  function_name    = var.name
+  function_name    = "${var.name}-auth"
   handler          = "index.handler"
   publish          = true
   timeout          = 5
@@ -117,4 +110,14 @@ resource "aws_iam_role_policy_attachment" "lambda_log_access" {
 resource "aws_iam_policy" "lambda_log_access" {
   name   = "cloudfront_auth_lambda_log_access"
   policy = data.aws_iam_policy_document.lambda_log_access.json
+}
+
+resource "null_resource" "lambda_clean_files" {
+  triggers = {
+    build_resource = aws_lambda_function.this.version
+  }
+
+  provisioner "local-exec" {
+    command = "rm -f lambda.zip && rm -rf terraform-aws-cloudfront-auth && rm -rf build"
+  }
 }

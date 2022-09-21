@@ -4,11 +4,6 @@ variable "auth_vendor" {
   description = "The vendor to use for authorisation (google, microsoft, github, okta, auth0, centrify)"
 }
 
-#variable "cloudfront_distribution" {
-#  type        = string
-#  description = "The cloudfront distribtion"
-#}
-
 variable "client_id" {
   type        = string
   description = "The authorisation client id"
@@ -17,7 +12,6 @@ variable "client_id" {
 variable "client_secret" {
   type        = string
   description = "The authorisation client secret"
-  #sensitive   = true
 }
 
 variable "redirect_uri" {
@@ -147,10 +141,10 @@ variable "origin_path" {
   default     = "/"
 }
 
-variable "cloudfront_distribution_name" {
-  description = "The name of the distribution."
-  type        = string
-}
+#variable "cloudfront_distribution_name" {
+#  description = "The name of the distribution."
+#  type        = string
+#}
 
 variable "cloudfront_aliases" {
   description = "List of cloudfront_aliases"
@@ -173,7 +167,7 @@ variable "cloudfront_price_class" {
 variable "cloudfront_minimum_protocol_version" {
   type        = string
   description = "Cloudfront TLS minimum protocol version"
-  default     = "TLSv1.1_2016"
+  default     = "TLSv1.2_2021"
 }
 
 variable "cloudfront_default_ttl" {
@@ -298,7 +292,7 @@ variable "cloudfront_origin_group" {
 variable "route53_enabled" {
   description = "Set to false to prevent the module from creating any resources"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "route53_parent_zone_id" {

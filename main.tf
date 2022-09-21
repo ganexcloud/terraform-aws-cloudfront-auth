@@ -501,13 +501,6 @@ resource "aws_cloudfront_response_headers_policy" "this" {
       }
     }
   }
-  #dynamic "server_timing_headers_config" {
-  #  for_each = length(keys(lookup(var.cloudfront_response_headers_policy, "server_timing_headers_config", {}))) == 0 ? [] : [lookup(var.cloudfront_response_headers_policy, "server_timing_headers_config", {})]
-  #  content {
-  #    enabled       = lookup(server_timing_headers_config.value, "enabled")
-  #    sampling_rate = lookup(server_timing_headers_config.value, "sampling_rate")
-  #  }
-  #}
 }
 
 resource "aws_cloudfront_origin_access_identity" "this" {
