@@ -5,7 +5,7 @@ if [ ! -d "build" ]; then
   if [ ! -L "build" ]; then
     #curl -L https://github.com/Widen/cloudfront-auth/archive/master.zip --output cloudfront-auth-master.zip
     #unzip -q cloudfront-auth-master.zip -d build/
-    git clone https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git build
+    git clone --branch v1 https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git build
     mkdir build/distributions
     cp ${data.local_file.build-js.filename} build/build/build.js
     cd build/ && npm i minimist && npm install && cd build && npm install
