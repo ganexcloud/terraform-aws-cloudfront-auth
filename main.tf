@@ -1,3 +1,18 @@
+/**
+  *
+  * ## Introduction
+  *
+  * This module will build a website that is protected by an [OpenId](https://openid.net/what-is-openid/)-compatible authentication provider.  It will provision a private S3 bucket, [Cloudfront](https://aws.amazon.com/cloudfront/), and deploy a customized Lambda function using [Lambda@Edge](https://aws.amazon.com/lambda/edge/).
+  *
+  * Currently support [Google Apps (G Suite)](https://developers.google.com/identity/protocols/OpenIDConnect), [Microsoft Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code), [GitHub](https://developer.github.com/apps/building-oauth-apps/authorization-options-for-oauth-apps/), [OKTA](https://www.okta.com/), [Auth0](https://auth0.com/), [Centrify](https://centrify.com)
+  *
+  * ## Based on
+  *
+  * This project uses the nodejs code from [Widen][widen] for the Lambda function.  Their repository includes a `build.js` script that interactively prompts for configuration items (client_id, client_secret, etc.) and builds the lambda zip file.
+  *
+  * We use too the existante terraform module [terraform-cloudfront-auth](https://github.com/scalefactory/terraform-cloudfront-auth) as a base.
+  */
+
 resource "aws_s3_bucket" "this" {
   bucket        = var.name
   force_destroy = var.force_destroy

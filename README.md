@@ -1,238 +1,126 @@
-# terraform-cloudfront-auth [![Latest Release](https://img.shields.io/github/release/scalefactory/terraform-cloudfront-auth.svg)](https://github.com/scalefactory/terraform-cloudfront-auth/releases/latest) [![License](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-
-This is an open source project published by The Scale Factory.
-
-We currently consider this project to be hibernating.
-
-These are projects that we’re no longer prioritising, but which we keep ticking over for the benefit of the few customers we support who still use them.
-
-:information_source: We’re not regularly patching these projects, or actively watching for issues or PRs. We’ll periodically make updates or respond to contributions if one of the team has some spare time to invest.
-
-A Terraform module to provision a Cloudfront distribution to serve private
-content in an S3 bucket with Lamba@Edge Google/Microsoft/Github/Okta/Auth0/Centrify
-authentication. Based on [Widen - Cloudfront Auth](https://github.com/Widen/cloudfront-auth/)
-
-
----
-
-
-## Screenshots
-
-
-![Example](/docs/code.png)
-*Example using GitHub authentication*
-
+<!-- BEGIN_TF_DOCS -->
 
 ## Introduction
 
-You should use this module if you have a private S3 bucket that you want to
-guard with Google/Microsoft/Github/Okta/Auth0/Centrify authentication.
+This module will build a website that is protected by an [OpenId](https://openid.net/what-is-openid/)-compatible authentication provider.  It will provision a private S3 bucket, [Cloudfront](https://aws.amazon.com/cloudfront/), and deploy a customized Lambda function using [Lambda@Edge](https://aws.amazon.com/lambda/edge/).
 
-The Terraform packages up
-[cloudfront-auth](https://github.com/Widen/cloudfront-auth/) into a Lambda
-function to be used by Cloudfront's
-[Lambda@Edge](https://aws.amazon.com/lambda/edge/). A private S3 bucket and
-Cloudfront Distribution will also be created.
+Currently support [Google Apps (G Suite)](https://developers.google.com/identity/protocols/OpenIDConnect), [Microsoft Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code), [GitHub](https://developer.github.com/apps/building-oauth-apps/authorization-options-for-oauth-apps/), [OKTA](https://www.okta.com/), [Auth0](https://auth0.com/), [Centrify](https://centrify.com)
 
-## Usage
+## Based on
 
-**NOTE**: You will need to create a certificate with AWS Certificate Manager in
-the `us-east-1` region. The example below assumes a certificate for the domain
-`example.com` already exists.
+This project uses the nodejs code from [Widen][widen] for the Lambda function.  Their repository includes a `build.js` script that interactively prompts for configuration items (client\_id, client\_secret, etc.) and builds the lambda zip file.
 
-```hcl
-module "cloudfront_auth" {
-  source                         = "git::https://github.com/scalefactory/terraform-cloudfront-auth.git?ref=master"
+We use too the existante terraform module [terraform-cloudfront-auth](https://github.com/scalefactory/terraform-cloudfront-auth) as a base.
 
-  auth_vendor                    = "github"
-  cloudfront_distribution        = "private.example.com"
-  client_id                      = "CHANGE_ME"
-  client_secret                  = "CHANGE_ME"
-  redirect_uri                   = "https://private.example.com/callback"
-  github_organization            = "exampleorg"
+## Requirements
 
-  bucket_name                    = "private.example.com"
-  region                         = "eu-west-1"
-  cloudfront_acm_certificate_arn = "${data.aws_acm_certificate.example.arn}"
-}
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.63 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.0 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.0 |
 
-data "aws_acm_certificate" "example" {
-  domain   = "example.com"
-  statuses = ["ISSUED"]
-}
-```
+## Providers
 
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.63 |
+| <a name="provider_null"></a> [null](#provider\_null) | ~> 3.0 |
 
-## Examples
+## Modules
 
-A Full working example can be found in [example](./example) folder. Please
-update the `cloudfront_auth` module parameters. **NOTE**: The certificate will
-need validating with email first.
+No modules.
 
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudfront_distribution.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
+| [aws_cloudfront_origin_access_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_identity) | resource |
+| [aws_cloudfront_response_headers_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_response_headers_policy) | resource |
+| [aws_iam_policy.lambda_log_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.lambda_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.lambda_log_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_function.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_route53_record.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_notification.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
+| [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [null_resource.build_lambda](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.copy_lambda_artifact](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.lambda_clean_files](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [aws_iam_policy_document.lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lambda_log_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_route53_zone.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
+| [null_data_source.lambda_artifact_sync](https://registry.terraform.io/providers/hashicorp/null/latest/docs/data-sources/data_source) | data source |
 
 ## Inputs
 
-### Provider specific Inputs
-
-Provider specific inputs marked required are only required for the specific auth
-vendor. E.g `hd` is not required if you are using the `github` auth vendor.
-
-**Google**
-
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| hd | The hosted domain (e.g example.com) | string | `` | yes |
-| authz | The authorization method: (1) Hosted Domain - verify email's domain matches that of the given hosted domain\n   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint\n   (3) Google Groups Lookup - verify email exists in one of given Google Groups | string | `1` | yes |
-
-**Microsoft**
-
-| Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| authz | The authorization method: (1) Azure AD Login (default)\n   (2) JSON Username Lookup | string | `1` | yes |
-
-**GitHub**
-
-| Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| github_organization | The github organization that owns the auth application | string | `` | yes |
-
-
-### Standard
-
-| Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| auth_vendor | The vendor to use for authorisation (google, microsoft, github, okta, auth0, centrify) | string | `` | yes |
-| cloudfront_distribution | The FQDN of your cloudfront distribution you want to use to serve your private content (e.g www.example.com) | string | `` | yes |
-| client_id | The client id of the auth application| string | `` | yes |
-| client_secret | The client secret of the auth application| string | `` | yes |
-| session_duration | Session duration in hours | string | `1` | no |
-| bucket_name | The name of your S3 bucket | string | `` | yes |
-| region | Region to launch your bucket in | string | `` | yes |
-| tags | Tags to label resources with (e.g map('dev', 'prod')) | map | `<map>` | no |
-| cloudfront_aliases | List of FQDNs to be used as alternative domain names (CNAMES) for Cloudfront | list | `<list>` | no |
-| cloudfront_price_class | Cloudfront price classes: `PriceClass_All`, `PriceClass_200`, `PriceClass_100` | string | `PriceClass_All` | no |
-| cloudfront_default_root_object | The default root object of the Cloudfront distribution | string | `index.html` | no |
-| cloudfront_acm_certificate_arn | The ARN of the ACM managed Certificate for the Cloudfront distribution (e.g arn:aws:acm:us-east-1:111111111111:certificate/40eae56f-3acf-4009-89a5-3f3e0fdba331). **NOTE**: The certificate must be created in the `us-east-1` region to work with Cloudfront | string | `` | yes |
+|------|-------------|------|---------|:--------:|
+| <a name="input_acl"></a> [acl](#input\_acl) | ACL | `string` | `"private"` | no |
+| <a name="input_acm_certificate_arn"></a> [acm\_certificate\_arn](#input\_acm\_certificate\_arn) | ARN of Certificate | `string` | `""` | no |
+| <a name="input_auth_vendor"></a> [auth\_vendor](#input\_auth\_vendor) | The vendor to use for authorisation (google, microsoft, github, okta, auth0, centrify) | `string` | n/a | yes |
+| <a name="input_authz"></a> [authz](#input\_authz) | The authorisation method (google, microsoft only). Mirosoft: (1) Azure AD Login (default)<br>   (2) JSON Username Lookup<br><br> Google: (1) Hosted Domain - verify email's domain matches that of the given hosted domain<br>   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint<br>   (3) Google Groups Lookup - verify email exists in one of given Google Groups | `string` | `"1"` | no |
+| <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
+| <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
+| <a name="input_client_id"></a> [client\_id](#input\_client\_id) | The authorisation client id | `string` | n/a | yes |
+| <a name="input_client_secret"></a> [client\_secret](#input\_client\_secret) | The authorisation client secret | `string` | n/a | yes |
+| <a name="input_cloudfront_aliases"></a> [cloudfront\_aliases](#input\_cloudfront\_aliases) | List of cloudfront\_aliases | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
+| <a name="input_cloudfront_allowed_methods"></a> [cloudfront\_allowed\_methods](#input\_cloudfront\_allowed\_methods) | List of allowed methods (e.g. GET, PUT, POST, DELETE, HEAD) for AWS CloudFront | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
+| <a name="input_cloudfront_cached_methods"></a> [cloudfront\_cached\_methods](#input\_cloudfront\_cached\_methods) | List of cached methods (e.g. GET, PUT, POST, DELETE, HEAD) | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
+| <a name="input_cloudfront_comment"></a> [cloudfront\_comment](#input\_cloudfront\_comment) | Cloudfront comments | `string` | `""` | no |
+| <a name="input_cloudfront_compress"></a> [cloudfront\_compress](#input\_cloudfront\_compress) | Compress content for web requests that include Accept-Encoding: gzip in the request header | `bool` | `false` | no |
+| <a name="input_cloudfront_custom_error_response"></a> [cloudfront\_custom\_error\_response](#input\_cloudfront\_custom\_error\_response) | List of one or more custom error response element maps | <pre>list(object({<br>    error_caching_min_ttl = number<br>    error_code            = number<br>    response_code         = number<br>    response_page_path    = string<br>  }))</pre> | `[]` | no |
+| <a name="input_cloudfront_custom_origins"></a> [cloudfront\_custom\_origins](#input\_cloudfront\_custom\_origins) | One or more custom origins for this distribution (multiples allowed). See documentation for configuration options description https://www.terraform.io/docs/providers/aws/r/cloudfront_distribution.html#origin-arguments | `any` | `[]` | no |
+| <a name="input_cloudfront_default_ttl"></a> [cloudfront\_default\_ttl](#input\_cloudfront\_default\_ttl) | Default amount of time (in seconds) that an object is in a CloudFront cache | `number` | `86400` | no |
+| <a name="input_cloudfront_forward_cookies"></a> [cloudfront\_forward\_cookies](#input\_cloudfront\_forward\_cookies) | Specifies whether you want CloudFront to forward all or no cookies to the origin. Can be 'all' or 'none' | `string` | `"none"` | no |
+| <a name="input_cloudfront_forward_header_values"></a> [cloudfront\_forward\_header\_values](#input\_cloudfront\_forward\_header\_values) | A list of whitelisted header values to forward to the origin | `list(string)` | `[]` | no |
+| <a name="input_cloudfront_forward_query_string"></a> [cloudfront\_forward\_query\_string](#input\_cloudfront\_forward\_query\_string) | Forward query strings to the origin that is associated with this cache behavior | `bool` | `false` | no |
+| <a name="input_cloudfront_index_document"></a> [cloudfront\_index\_document](#input\_cloudfront\_index\_document) | Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders | `string` | `"index.html"` | no |
+| <a name="input_cloudfront_max_ttl"></a> [cloudfront\_max\_ttl](#input\_cloudfront\_max\_ttl) | Maximum amount of time (in seconds) that an object is in a CloudFront cache | `number` | `31536000` | no |
+| <a name="input_cloudfront_min_ttl"></a> [cloudfront\_min\_ttl](#input\_cloudfront\_min\_ttl) | Minimum amount of time that you want objects to stay in CloudFront caches | `number` | `0` | no |
+| <a name="input_cloudfront_minimum_protocol_version"></a> [cloudfront\_minimum\_protocol\_version](#input\_cloudfront\_minimum\_protocol\_version) | Cloudfront TLS minimum protocol version | `string` | `"TLSv1.2_2021"` | no |
+| <a name="input_cloudfront_ordered_cache_behavior"></a> [cloudfront\_ordered\_cache\_behavior](#input\_cloudfront\_ordered\_cache\_behavior) | (Optional) - An ordered list of cache behaviors resource for this distribution. List from top to bottom in order of precedence. The topmost cache behavior will have precedence 0. | `any` | `[]` | no |
+| <a name="input_cloudfront_origin_group"></a> [cloudfront\_origin\_group](#input\_cloudfront\_origin\_group) | One or more origin\_group for this distribution (multiples allowed). | `any` | `{}` | no |
+| <a name="input_cloudfront_price_class"></a> [cloudfront\_price\_class](#input\_cloudfront\_price\_class) | Price class for this distribution: `PriceClass_All`, `PriceClass_200`, `PriceClass_100` | `string` | `"PriceClass_All"` | no |
+| <a name="input_cloudfront_response_headers_policy"></a> [cloudfront\_response\_headers\_policy](#input\_cloudfront\_response\_headers\_policy) | (Optional) Provides a CloudFront response headers policy resource. A response headers policy contains information about a set of HTTP response headers and their values. After you create a response headers policy, you can use its ID to attach it to one or more cache behaviors in a CloudFront distribution. When it’s attached to a cache behavior, CloudFront adds the headers in the policy to every response that it sends for requests that match the cache behavior. | `any` | `{}` | no |
+| <a name="input_cloudfront_response_headers_policy_id"></a> [cloudfront\_response\_headers\_policy\_id](#input\_cloudfront\_response\_headers\_policy\_id) | (Optional) The identifier for a response headers policy. If response\_headers\_policy is true the name of policy is used. | `string` | `null` | no |
+| <a name="input_cloudfront_trusted_signers"></a> [cloudfront\_trusted\_signers](#input\_cloudfront\_trusted\_signers) | The AWS accounts, if any, that you want to allow to create signed URLs for private content. 'self' is acceptable. | `list(string)` | `[]` | no |
+| <a name="input_cloudfront_viewer_protocol_policy"></a> [cloudfront\_viewer\_protocol\_policy](#input\_cloudfront\_viewer\_protocol\_policy) | allow-all, redirect-to-https | `string` | `"redirect-to-https"` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Delete all objects in bucket on destroy | `bool` | `false` | no |
+| <a name="input_github_organization"></a> [github\_organization](#input\_github\_organization) | The GitHub organization. Required for GitHub auth vendor only | `string` | `null` | no |
+| <a name="input_hd"></a> [hd](#input\_hd) | The hosted domain (google only) | `string` | `null` | no |
+| <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | Whether Amazon S3 should ignore public ACLs for this bucket. | `bool` | `true` | no |
+| <a name="input_lambda_notifications"></a> [lambda\_notifications](#input\_lambda\_notifications) | Map of S3 bucket notifications to Lambda function | `any` | `{}` | no |
+| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | `[]` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of resources | `string` | n/a | yes |
+| <a name="input_policy"></a> [policy](#input\_policy) | A valid bucket policy JSON document | `string` | `""` | no |
+| <a name="input_redirect_uri"></a> [redirect\_uri](#input\_redirect\_uri) | The redirect uri | `string` | n/a | yes |
+| <a name="input_replication_configuration"></a> [replication\_configuration](#input\_replication\_configuration) | Map containing cross-region bucket replication configuration. | `any` | `{}` | no |
+| <a name="input_restrict_public_buckets"></a> [restrict\_public\_buckets](#input\_restrict\_public\_buckets) | Whether Amazon S3 should restrict public bucket policies for this bucket. | `bool` | `true` | no |
+| <a name="input_route53_enabled"></a> [route53\_enabled](#input\_route53\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `false` | no |
+| <a name="input_route53_evaluate_target_health"></a> [route53\_evaluate\_target\_health](#input\_route53\_evaluate\_target\_health) | Set to true if you want Route 53 to determine whether to respond to DNS queries | `bool` | `"false"` | no |
+| <a name="input_route53_parent_zone_id"></a> [route53\_parent\_zone\_id](#input\_route53\_parent\_zone\_id) | ID of the hosted zone to contain this record  (or specify `parent_zone_name`) | `string` | `""` | no |
+| <a name="input_route53_parent_zone_name"></a> [route53\_parent\_zone\_name](#input\_route53\_parent\_zone\_name) | Name of the hosted zone to contain this record (or specify `parent_zone_id`) | `string` | `""` | no |
+| <a name="input_s3_cors_rule"></a> [s3\_cors\_rule](#input\_s3\_cors\_rule) | (Optional) List of maps containing rules for Cross-Origin Resource Sharing. | `any` | `[]` | no |
+| <a name="input_session_duration"></a> [session\_duration](#input\_session\_duration) | Session duration in hours | `number` | `1` | no |
+| <a name="input_sns_notifications"></a> [sns\_notifications](#input\_sns\_notifications) | Map of S3 bucket notifications to SNS topic | `any` | `{}` | no |
+| <a name="input_sqs_notifications"></a> [sqs\_notifications](#input\_sqs\_notifications) | Map of S3 bucket notifications to SQS queue | `any` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Additional Tags | `map(string)` | `{}` | no |
+| <a name="input_versioning"></a> [versioning](#input\_versioning) | Map containing versioning configuration. | `map(string)` | `{}` | no |
+| <a name="input_website"></a> [website](#input\_website) | Map containing static web-site hosting or redirect configuration. | `map(string)` | <pre>{<br>  "error_document": "index.html",<br>  "index_document": "index.html"<br>}</pre> | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| s3_bucket | The name of the S3 Bucket |
-| cloudfront_arn | ARN of the Cloudfront Distribution |
-| cloudfront_id | ID of the Cloudfront Distribution |
-
-
-
-
-## References
-
-For additional context, refer to some of these links.
-
-- [Widen - Cloudfront Auth](https://github.com/Widen/cloudfront-auth/) - This project wraps Terraform around Widen's cloudfront-auth around
-- [Terraform](https://terraform.io) - Infrastructure as code
-
-
-## Help
-
-**Got a question?**
-
-File a GitHub [issue](https://github.com/scalefactory/terraform-cloudfront-auth/issues).
-
-## Contributing
-
-### Bug Reports & Feature Requests
-
-Please use the [issue tracker](https://github.com/scalefactory/terraform-cloudfront-auth/issues) to report any bugs or file feature requests.
-
-### Developing
-
-We welcome all pull requests to our open source projects. We follow
-"fork-and-pull" Git workflow.
-
- 1. **Fork** the repository on GitHub
- 2. **Clone** your fork to your local development environment
- 3. **Commit** changes to your own branch in your project
- 4. **Push** your changes back to GitHub
- 5. Submit a **Pull Request** so that we can review your changes
-
-**NOTE:** Be sure to merge the latest changes from "upstream" before making a
-pull request!
-
-
-
-## Copyrights
-
-Copyright © 2019-2020 [The Scale Factory Ltd.](https://scalefactory.com/)
-
-Copyright © 2017-2019 [Widen Enterprises](https://www.widen.com/)
-
-
-
-
-
-
-
-
-## License
-
-[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-
-ISC License (ISC)
-
-Copyright (c) 2019, The Scale Factory Ltd.
-
-Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-Source: <https://opensource.org/licenses/ISC>
-
-
-
-
-## About
-
-This project is maintained by [The Scale Factory][website]. Like it? Please
-give it a ★.
-
-<a href="https://scalefactory.com">
-  <img src="https://academy.scalefactory.com/images/logo.svg"
-    alt="Scale Factory"
-    data-canonical-src="https://academy.scalefactory.com/images/logo.svg"
-    width="300px">
-</a>
-
-We're a [DevOps and Cloud Infrastructure Consultancy][services] company based in London,
-UK. We love empowering teams to deliver more with [AWS][aws].
-
-Check out [our other projects][github], [follow us on twitter][twitter], or [hire us][services] to help with your cloud strategy and implementation.
-
-
-### Contributors
-
-|  [![Steve Porter][steveporter92_avatar]][steveporter92_homepage]<br/>[Steve Porter][steveporter92_homepage] |
-|  [![Tim Bannister][sftim_avatar]][sftim_homepage]<br/>[Tim Bannister][sftim_homepage] |
-|---|
-
-  [steveporter92_homepage]: https://github.com/steveporter92
-  [steveporter92_avatar]: https://github.com/steveporter92.png?size=150
-  [sftim_homepage]: https://github.com/sftim
-  [sftim_avatar]: https://github.com/sftim.png?size=150
-
-
-
-
-  [logo]: https://academy.scalefactory.com/images/logo.svg
-  [website]: https://scalefactory.com
-  [github]: https://github.com/scalefactory
-  [services]: https://www.scalefactory.com/services
-  [aws]: https://aws.amazon.com/
-  [linkedin]: https://www.linkedin.com/company/the-scale-factory
-  [twitter]: https://twitter.com/scalefactory
-  [email]: https://www.scalefactory.com/contact-us
-  [share_twitter]: https://twitter.com/intent/tweet/?text=terraform-cloudfront-auth&url=https://github.com/scalefactory/terraform-cloudfront-auth
-  [share_linkedin]: https://www.linkedin.com/shareArticle?mini=true&title=terraform-cloudfront-auth&url=https://github.com/scalefactory/terraform-cloudfront-auth
-  [share_reddit]: https://reddit.com/submit/?url=https://github.com/scalefactory/terraform-cloudfront-auth
-  [share_facebook]: https://facebook.com/sharer/sharer.php?u=https://github.com/scalefactory/terraform-cloudfront-auth
-  [share_email]: mailto:?subject=terraform-cloudfront-auth&body=https://github.com/scalefactory/terraform-cloudfront-auth
+| <a name="output_bucket_arn"></a> [bucket\_arn](#output\_bucket\_arn) | The ARN of the S3 Bucket project. |
+| <a name="output_bucket_domain_name"></a> [bucket\_domain\_name](#output\_bucket\_domain\_name) | S3 Bucket Domain Name |
+| <a name="output_bucket_name"></a> [bucket\_name](#output\_bucket\_name) | S3 Bucket Name |
+| <a name="output_cloudfront_arn"></a> [cloudfront\_arn](#output\_cloudfront\_arn) | The ARN (Amazon Resource Name) for the distribution. |
+| <a name="output_cloudfront_id"></a> [cloudfront\_id](#output\_cloudfront\_id) | The identifier for the cloudfront distribution |
+<!-- END_TF_DOCS -->

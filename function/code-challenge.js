@@ -3,9 +3,9 @@ const crypto = require('crypto');
 module.exports.get = function (length) {
     const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
     const charactersLength = characters.length;
-    
+
     var codeChallenge    = '';
-    
+
     for ( var i = 0; i < length; i++ ) {
         codeChallenge += characters.charAt(Math.floor(Math.random() * charactersLength));
     }

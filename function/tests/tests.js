@@ -20,7 +20,7 @@ if(!fs.existsSync("distributions/" + DISTRIBUTION)) {
   process.exit();
 }
 
-shell.mkdir('-p', 'distributions/' + DISTRIBUTION + "/logs");  
+shell.mkdir('-p', 'distributions/' + DISTRIBUTION + "/logs");
 
 // Check for config-test.json
 if(!fs.existsSync("distributions/" + DISTRIBUTION + "/config-test.json")) {
@@ -86,7 +86,7 @@ switch(testConfig.auth) {
     console.log(colors.red("PASSWORD: ") + colors.green(password));
     ngrok.connect({
       addr: testConfig.port,
-      auth: username + ':' + password    
+      auth: username + ':' + password
     }, function(err, url){
       if (err) {
         console.log(err);
@@ -183,7 +183,7 @@ function setupRedirect(url, lambdaFunction) {
                 if (err) {
                   console.log(err, err.stack);
                 } else {
-                  // Update log                  
+                  // Update log
                   fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n*/ Token Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
                 }
 

@@ -135,17 +135,6 @@ variable "restrict_public_buckets" {
   default     = true
 }
 
-variable "origin_path" {
-  type        = string
-  description = "An optional element that causes CloudFront to request your content from a directory in your Amazon S3 bucket or your custom origin. It must begin with a /. Do not add a / at the end of the path."
-  default     = "/"
-}
-
-#variable "cloudfront_distribution_name" {
-#  description = "The name of the distribution."
-#  type        = string
-#}
-
 variable "cloudfront_aliases" {
   description = "List of cloudfront_aliases"
   type        = list(string)
@@ -254,13 +243,7 @@ variable "cloudfront_index_document" {
   description = "Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders"
 }
 
-variable "cloudfront_default_target_origin_id" {
-  type        = string
-  default     = null
-  description = "The value of ID for the origin that you want CloudFront to route requests to the default cache behavior"
-}
-
-variable cloudfront_ordered_cache_behavior {
+variable "cloudfront_ordered_cache_behavior" {
   type        = any
   default     = []
   description = "(Optional) - An ordered list of cache behaviors resource for this distribution. List from top to bottom in order of precedence. The topmost cache behavior will have precedence 0."
@@ -342,4 +325,3 @@ variable "s3_cors_rule" {
   type        = any
   default     = []
 }
-
