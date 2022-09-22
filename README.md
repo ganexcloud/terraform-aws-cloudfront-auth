@@ -8,11 +8,11 @@ Currently support [Google Apps (G Suite)](https://developers.google.com/identity
 
 ## Based on
 
-### [Widen](https://github.com/Widen/cloudfront-auth/)
+#### [Widen](https://github.com/Widen/cloudfront-auth/)
 This project uses the nodejs code for the Lambda function. Their repository includes a `build.js` script that interactively prompts for configuration items (client\_id, client\_secret, etc.) and builds the lambda zip file.
 
-### [terraform-cloudfront-auth](https://github.com/scalefactory/terraform-cloudfront-auth)
-We use too the existante terraform module as a base.
+#### [terraform-cloudfront-auth](https://github.com/scalefactory/terraform-cloudfront-auth)
+We use too the existant terraform module as a base.
 
 ## Requirements
 
