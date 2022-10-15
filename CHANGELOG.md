@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.0.1](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.0...v1.0.1) (2022-10-15)
+
+
+### Bug Fixes
+
+* Adjusting build.js script ([796587c](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/796587cd72ef1b4c538a0842b888fbeb11259843))
+* force release ([3ea2aaf](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/3ea2aaf3aadf9091ae5584f0249c743aee132f80))
+
 ## 1.0.0 (2022-09-22)
 
 
