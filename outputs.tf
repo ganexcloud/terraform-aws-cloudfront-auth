@@ -22,3 +22,4 @@ output "cloudfront_arn" {
   description = "The ARN (Amazon Resource Name) for the distribution."
   value       = aws_cloudfront_distribution.this.arn
 }
+
