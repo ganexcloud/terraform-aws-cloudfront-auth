@@ -14,10 +14,9 @@ resource "null_resource" "build_lambda" {
   provisioner "local-exec" {
     command = <<EOF
     rm -rf terraform-aws-cloudfront-auth && rm -rf build
-    git clone --branch v1 https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git terraform-aws-cloudfront-auth
+    git clone --branch master https://github.com/ganexcloud/terraform-aws-cloudfront-auth.git terraform-aws-cloudfront-auth
     mv terraform-aws-cloudfront-auth/function build
     mkdir build/distributions
-    cp terraform-aws-cloudfront-auth/build.js build/build/build.js
     cd build/ && npm i minimist && npm install && cd build && npm install
 EOF
   }

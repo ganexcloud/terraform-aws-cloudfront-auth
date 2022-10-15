@@ -5,24 +5,26 @@ const axios = require('axios');
 const colors = require('colors/safe');
 const url = require('url');
 const R = require('ramda');
-
+const argv = require('minimist')(process.argv.slice(2));
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
 var oldConfig;
 
 prompt.message = colors.blue(">");
+prompt.override = argv;
+
 prompt.start();
 prompt.get({
   properties: {
-    distribution: {
+    CLOUDFRONT_DISTRIBUTION: {
       message: colors.red("Enter distribution name"),
       required: true
     },
-    method: {
-      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n    (7) OKTA Native\n\n    Select an authentication method")
+    AUTH_VENDOR: {
+      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n\n    Select an authentication method")
     }
   }
 }, function (err, result) {
-  config.DISTRIBUTION = result.distribution;
+  config.DISTRIBUTION = result.CLOUDFRONT_DISTRIBUTION;
   shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);
   if (fs.existsSync('distributions/' + config.DISTRIBUTION + '/config.json')) {
     oldConfig = JSON.parse(fs.readFileSync('./distributions/' + config.DISTRIBUTION + '/config.json', 'utf8'));
@@ -31,55 +33,48 @@ prompt.get({
     shell.exec("ssh-keygen -t rsa -m PEM -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
     shell.exec("openssl rsa -in ./distributions/" + config.DISTRIBUTION + "/id_rsa -pubout -outform PEM -out ./distributions/" + config.DISTRIBUTION + "/id_rsa.pub");
   }
-  switch (result.method) {
-    case '1':
+  switch (result.AUTH_VENDOR) {
+    case 'google':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "GOOGLE") {
         oldConfig = undefined;
       }
       config.AUTHN = "GOOGLE";
       googleConfiguration();
       break;
-    case '2':
+    case 'microsoft':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
         oldConfig = undefined;
       }
       config.AUTHN = "MICROSOFT";
       microsoftConfiguration();
       break;
-    case '3':
+    case 'github':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "GITHUB") {
         oldConfig = undefined;
       }
       config.AUTHN = "GITHUB";
       githubConfiguration();
       break;
-    case '4':
+    case 'okta':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA") {
         oldConfig = undefined;
       }
       config.AUTHN = "OKTA";
       oktaConfiguration();
       break;
-    case '5':
+    case 'auth0':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "AUTH0") {
         oldConfig = undefined;
       }
       config.AUTHN = "AUTH0";
       auth0Configuration();
       break;
-    case '6':
+    case 'centrify':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "CENTRIFY") {
         oldConfig = undefined;
       }
       config.AUTHN = "CENTRIFY";
       centrifyConfiguration();
-      break;
-    case '7':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA_NATIVE") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "OKTA_NATIVE";
-      oktaConfiguration();
       break;
     default:
       console.log("Method not recognized. Stopping build...");
@@ -239,13 +234,13 @@ function googleConfiguration() {
 
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
-    switch (result.AUTHZ) {
-      case '1':
+    switch (parseInt(result.AUTHZ)) {
+      case 1:
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
         writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         break;
-      case '2':
+      case 2:
         shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
@@ -261,7 +256,7 @@ function googleConfiguration() {
           writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         });
         break;
-      case '3':
+      case 3:
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
@@ -303,54 +298,43 @@ function googleGroupsConfiguration() {
     }
   }, function (err, result) {
     config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json', 'nonce.js']);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json']);
   });
 }
 
 function oktaConfiguration() {
-  var properties = {
-    BASE_URL: {
-      message: colors.red("Base URL"),
-      required: true,
-      default: R.pathOr('', ['BASE_URL'], oldConfig)
-    },
-    CLIENT_ID: {
-      message: colors.red("Client ID"),
-      required: true,
-      default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
-    },
-    REDIRECT_URI: {
-      message: colors.red("Redirect URI"),
-      required: true,
-      default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
-    },
-    SESSION_DURATION: {
-      pattern: /^[0-9]*$/,
-      description: colors.red("Session Duration (hours)"),
-      message: colors.green("Entry must only contain numbers"),
-      required: true,
-      default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
-    }
-  };
-
-  if(config.AUTHN == 'OKTA') {
-    properties['CLIENT_SECRET'] = {
-      message: colors.red("Client Secret"),
-      required: true,
-      default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
-    }
-  } else if (config.AUTHN == 'OKTA_NATIVE') {
-    properties['PKCE_CODE_VERIFIER_LENGTH'] = {
-      message: colors.red("Length of random PKCE code_verifier"),
-      required: true,
-      default: R.pathOr('', ['PKCE_CODE_VERIFIER_LENGTH'], oldConfig)
-    }
-  }
-
   prompt.message = colors.blue(">>");
   prompt.start();
   prompt.get({
-    properties: properties
+    properties: {
+      BASE_URL: {
+        message: colors.red("Base URL"),
+        required: true,
+        default: R.pathOr('', ['BASE_URL'], oldConfig)
+      },
+      CLIENT_ID: {
+        message: colors.red("Client ID"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
+      },
+      CLIENT_SECRET: {
+        message: colors.red("Client Secret"),
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
+      },
+      REDIRECT_URI: {
+        message: colors.red("Redirect URI"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+      },
+      SESSION_DURATION: {
+        pattern: /^[0-9]*$/,
+        description: colors.red("Session Duration (hours)"),
+        message: colors.green("Entry must only contain numbers"),
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
+      }
+    }
   }, function(err, result) {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
@@ -366,24 +350,19 @@ function oktaConfiguration() {
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
 
     config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
-    var files = ['config.json', 'index.js', 'auth.js', 'nonce.js'];
-    if(result.CLIENT_SECRET) {
-      config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
-      shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-    } else {
-      config.PKCE_CODE_VERIFIER_LENGTH = result.PKCE_CODE_VERIFIER_LENGTH || "96";
-      shell.cp('./code-challenge.js', './distributions/' + config.DISTRIBUTION + '/code-challenge.js');
-      shell.cp('./authn/pkce.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-      files.push('code-challenge.js');
-    }
+
     config.AUTHZ = "OKTA";
 
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
     shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
+
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+
     shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, files);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
   });
 }
 
@@ -414,21 +393,21 @@ function githubConfiguration() {
         required: true,
         default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
       },
-      ORGANIZATION: {
+      GITHUB_ORGANIZATION: {
         description: colors.red("Organization"),
         required: true,
         default: R.pathOr('', ['ORGANIZATION'], oldConfig)
       }
     }
   }, function(err, result) {
-    axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
+    axios.get('https://api.github.com/orgs/' + result.GITHUB_ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
           config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
           config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
           config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
-          config.ORGANIZATION = result.ORGANIZATION;
+          config.ORGANIZATION = result.GITHUB_ORGANIZATION;
           config.AUTHORIZATION_ENDPOINT = 'https://github.com/login/oauth/authorize';
           config.TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 
