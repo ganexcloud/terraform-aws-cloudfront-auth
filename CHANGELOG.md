@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.0.2](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.1...v1.0.2) (2023-03-08)
+
+
+### Bug Fixes
+
+* add iam_policy tag ([b56f964](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/b56f96489baccfb9d14c9e883413177593ba7afd))
+
 ### [1.0.1](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.0...v1.0.1) (2022-10-15)
 
 
