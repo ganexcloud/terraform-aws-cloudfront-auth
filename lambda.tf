@@ -123,4 +123,5 @@ resource "aws_iam_role_policy_attachment" "lambda_log_access" {
 resource "aws_iam_policy" "lambda_log_access" {
   name   = "${var.name}-cloudfront-auth"
   policy = data.aws_iam_policy_document.lambda_log_access.json
+  tags   = var.tags
 }
