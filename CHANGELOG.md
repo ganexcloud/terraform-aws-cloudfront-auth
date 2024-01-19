@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.0.3](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.2...v1.0.3) (2024-01-19)
+
+
+### Bug Fixes
+
+* updating nodejs version ([4b111e8](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/4b111e8779c147e5314c48162feb14e66b9e8ec5))
+
 ### [1.0.2](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.1...v1.0.2) (2023-03-08)
 
 
