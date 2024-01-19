@@ -80,7 +80,7 @@ resource "null_resource" "lambda_clean_files" {
 
 resource "aws_lambda_function" "this" {
   description      = "Managed by Terraform"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs16.x"
   role             = aws_iam_role.lambda_role.arn
   filename         = "lambda-functions/terraform-aws-cloudfront-auth.zip"
   function_name    = "${var.name}-auth"
