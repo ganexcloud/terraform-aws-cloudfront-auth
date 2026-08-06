@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.5...v1.0.6) (2026-08-06)
+
+### Bug Fixes
+
+* **ci:** pin terraform-docs image ([df9780e](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/df9780e7642d3b24314a5e53f33ef609800181e0))
+* **docs:** align provider version ([45e69ff](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/45e69ffc33d0e7ac5d9f96a9b7ea16811b23fd73))
+
 ### [1.0.5](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.4...v1.0.5) (2024-06-03)
 
 
