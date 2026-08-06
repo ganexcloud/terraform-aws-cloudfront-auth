@@ -1,3 +1,7 @@
+## Compatibility
+
+This module requires Terraform 0.13.1 or later. Older Terraform versions are not supported.
+
 <!-- BEGIN_TF_DOCS -->
 
 ## Introduction
@@ -27,8 +31,8 @@ We use too the existant terraform module as a base.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.63 |
-| <a name="provider_null"></a> [null](#provider\_null) | ~> 3.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.58.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.3.0 |
 
 ## Modules
 
@@ -53,9 +57,11 @@ No modules.
 | [null_resource.build_lambda](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.copy_lambda_artifact](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.lambda_clean_files](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_log_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_route53_zone.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
 | [null_data_source.lambda_artifact_sync](https://registry.terraform.io/providers/hashicorp/null/latest/docs/data-sources/data_source) | data source |
 
@@ -66,17 +72,17 @@ No modules.
 | <a name="input_acl"></a> [acl](#input\_acl) | (Optional) ACL | `string` | `"private"` | no |
 | <a name="input_acm_certificate_arn"></a> [acm\_certificate\_arn](#input\_acm\_certificate\_arn) | (Optional) ARN of Certificate | `string` | `""` | no |
 | <a name="input_auth_vendor"></a> [auth\_vendor](#input\_auth\_vendor) | (Required) The vendor to use for authorization (google, microsoft, github, okta, auth0, centrify) | `string` | n/a | yes |
-| <a name="input_authz"></a> [authz](#input\_authz) | (Optional) The authorization method (google, microsoft only). Mirosoft: (1) Azure AD Login (default)<br>   (2) JSON Username Lookup<br><br> Google: (1) Hosted Domain - verify email's domain matches that of the given hosted domain<br>   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint<br>   (3) Google Groups Lookup - verify email exists in one of given Google Groups | `string` | `"1"` | no |
+| <a name="input_authz"></a> [authz](#input\_authz) | (Optional) The authorization method (google, microsoft only). Mirosoft: (1) Azure AD Login (default)<br/>   (2) JSON Username Lookup<br/><br/> Google: (1) Hosted Domain - verify email's domain matches that of the given hosted domain<br/>   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint<br/>   (3) Google Groups Lookup - verify email exists in one of given Google Groups | `string` | `"1"` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | (Optional) Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | (Optional) Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
 | <a name="input_client_id"></a> [client\_id](#input\_client\_id) | (Required) The authorization client id | `string` | n/a | yes |
 | <a name="input_client_secret"></a> [client\_secret](#input\_client\_secret) | (Required) The authorization client secret | `string` | n/a | yes |
-| <a name="input_cloudfront_aliases"></a> [cloudfront\_aliases](#input\_cloudfront\_aliases) | (Optional) List of cloudfront\_aliases | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
-| <a name="input_cloudfront_allowed_methods"></a> [cloudfront\_allowed\_methods](#input\_cloudfront\_allowed\_methods) | (Optional) List of allowed methods (e.g. GET, PUT, POST, DELETE, HEAD) for AWS CloudFront | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
-| <a name="input_cloudfront_cached_methods"></a> [cloudfront\_cached\_methods](#input\_cloudfront\_cached\_methods) | (Optional) List of cached methods (e.g. GET, PUT, POST, DELETE, HEAD) | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
+| <a name="input_cloudfront_aliases"></a> [cloudfront\_aliases](#input\_cloudfront\_aliases) | (Optional) List of cloudfront\_aliases | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
+| <a name="input_cloudfront_allowed_methods"></a> [cloudfront\_allowed\_methods](#input\_cloudfront\_allowed\_methods) | (Optional) List of allowed methods (e.g. GET, PUT, POST, DELETE, HEAD) for AWS CloudFront | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
+| <a name="input_cloudfront_cached_methods"></a> [cloudfront\_cached\_methods](#input\_cloudfront\_cached\_methods) | (Optional) List of cached methods (e.g. GET, PUT, POST, DELETE, HEAD) | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
 | <a name="input_cloudfront_comment"></a> [cloudfront\_comment](#input\_cloudfront\_comment) | (Optional) Cloudfront comments | `string` | `""` | no |
 | <a name="input_cloudfront_compress"></a> [cloudfront\_compress](#input\_cloudfront\_compress) | (Optional) Compress content for web requests that include Accept-Encoding: gzip in the request header | `bool` | `false` | no |
-| <a name="input_cloudfront_custom_error_response"></a> [cloudfront\_custom\_error\_response](#input\_cloudfront\_custom\_error\_response) | (Optional) List of one or more custom error response element maps | <pre>list(object({<br>    error_caching_min_ttl = number<br>    error_code            = number<br>    response_code         = number<br>    response_page_path    = string<br>  }))</pre> | `[]` | no |
+| <a name="input_cloudfront_custom_error_response"></a> [cloudfront\_custom\_error\_response](#input\_cloudfront\_custom\_error\_response) | (Optional) List of one or more custom error response element maps | <pre>list(object({<br/>    error_caching_min_ttl = number<br/>    error_code            = number<br/>    response_code         = number<br/>    response_page_path    = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_cloudfront_custom_origins"></a> [cloudfront\_custom\_origins](#input\_cloudfront\_custom\_origins) | (Optional) One or more custom origins for this distribution (multiples allowed). See documentation for configuration options description https://www.terraform.io/docs/providers/aws/r/cloudfront_distribution.html#origin-arguments | `any` | `[]` | no |
 | <a name="input_cloudfront_default_ttl"></a> [cloudfront\_default\_ttl](#input\_cloudfront\_default\_ttl) | (Optional) Default amount of time (in seconds) that an object is in a CloudFront cache | `number` | `86400` | no |
 | <a name="input_cloudfront_forward_cookies"></a> [cloudfront\_forward\_cookies](#input\_cloudfront\_forward\_cookies) | (Optional) Specifies whether you want CloudFront to forward all or no cookies to the origin. Can be 'all' or 'none' | `string` | `"none"` | no |
@@ -114,7 +120,7 @@ No modules.
 | <a name="input_sqs_notifications"></a> [sqs\_notifications](#input\_sqs\_notifications) | (Optional) Map of S3 bucket notifications to SQS queue | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) Additional Tags | `map(string)` | `{}` | no |
 | <a name="input_versioning"></a> [versioning](#input\_versioning) | (Optional) Map containing versioning configuration. | `map(string)` | `{}` | no |
-| <a name="input_website"></a> [website](#input\_website) | (Optional) Map containing static web-site hosting or redirect configuration. | `map(string)` | <pre>{<br>  "error_document": "index.html",<br>  "index_document": "index.html"<br>}</pre> | no |
+| <a name="input_website"></a> [website](#input\_website) | (Optional) Map containing static web-site hosting or redirect configuration. | `map(string)` | <pre>{<br/>  "error_document": "index.html",<br/>  "index_document": "index.html"<br/>}</pre> | no |
 
 ## Outputs
 

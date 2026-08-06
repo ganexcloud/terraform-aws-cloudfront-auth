@@ -1,0 +1,38 @@
+name: Validate Terraform module
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "0.13.1"
+          terraform_wrapper: false
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.58.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit
+        run: pipx install pre-commit
+
+      - name: Validate root module
+        run: |
+          terraform fmt -check -recursive
+          terraform init -backend=false
+          terraform validate
+          pre-commit run --all-files
