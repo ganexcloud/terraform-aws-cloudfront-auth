@@ -32,5 +32,5 @@ repos:
         name: Terraform docs
         language: docker_image
         entry: quay.io/terraform-docs/terraform-docs:0.20.0
-        args: ["markdown", "table", "--output-file", "README.md", "--output-mode", "inject", "."]
+        args: ["markdown", "table", "--lockfile=false", "--output-file", "README.md", "--output-mode", "inject", "."]
         pass_filenames: false
