@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.6...v2.0.0) (2026-09-28)
+
+### ⚠ BREAKING CHANGES
+
+* **terraform:** consumers must use Terraform >= 1.6.0 and AWS Provider >= 5.40.0.
+
+### Features
+
+* **terraform:** require terraform 1.6 and aws provider 5 ([e0ae119](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/commit/e0ae1194c53c8ba378e02a11678971a9f1efb317))
+
 ## [1.0.6](https://github.com/ganexcloud/terraform-aws-cloudfront-auth/compare/v1.0.5...v1.0.6) (2026-08-06)
 
 ### Bug Fixes
