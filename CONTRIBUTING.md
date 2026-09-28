@@ -13,8 +13,10 @@ change focused, documented, and validated before opening a pull request.
 
 Before opening a pull request, run:
 
-```shell
-tfswitch
+```sh
+terraform fmt -check -recursive
+terraform init -backend=false
+terraform validate
 pre-commit run --all-files
 ```
 

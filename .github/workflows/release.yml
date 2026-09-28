@@ -13,16 +13,31 @@ permissions:
   issues: write
   pull-requests: write
 
+concurrency:
+  group: release-master
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: cycjimmy/semantic-release-action@v5.0.2
+      - name: Create release app token
+        id: release-app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v5.0.2
         with:
           semantic_version: 25.0.8
           extra_plugins: |
@@ -30,4 +45,4 @@ jobs:
             @semantic-release/git@10.0.1
             conventional-changelog-conventionalcommits@8.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.release-app-token.outputs.token }}

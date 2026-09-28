@@ -1,6 +1,14 @@
+# terraform-aws-cloudfront-auth
+
+Terraform module that provisions an authenticated CloudFront distribution, a private S3 bucket, Lambda@Edge authentication and the supporting IAM resources.
+
 ## Compatibility
 
-This module requires Terraform 0.13.1 or later. Older Terraform versions are not supported.
+This module requires Terraform 1.6.0 or later and supports AWS provider versions from 5.40.0 up to, but not including, 7.0.0.
+
+## Example
+
+See [`examples/github`](examples/github).
 
 <!-- BEGIN_TF_DOCS -->
 
@@ -22,8 +30,8 @@ We use too the existant terraform module as a base.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.63 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.40.0, < 7.0.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.0 |
 
@@ -31,7 +39,7 @@ We use too the existant terraform module as a base.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.63 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.40.0, < 7.0.0 |
 | <a name="provider_null"></a> [null](#provider\_null) | ~> 3.0 |
 
 ## Modules
