@@ -339,7 +339,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   dynamic "origin" {
-    for_each = length(var.cloudfront_custom_origins) == 0 ? list(1) : []
+    for_each = length(var.cloudfront_custom_origins) == 0 ? [1] : []
     content {
       domain_name = aws_s3_bucket.this.bucket_domain_name
       origin_id   = "S3-${var.name}"
@@ -395,7 +395,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   viewer_certificate {
     acm_certificate_arn            = var.acm_certificate_arn
-    ssl_support_method             = var.acm_certificate_arn == "" ? "" : "sni-only"
+    ssl_support_method             = var.acm_certificate_arn == "" ? null : "sni-only"
     minimum_protocol_version       = var.cloudfront_minimum_protocol_version
     cloudfront_default_certificate = var.acm_certificate_arn == "" ? true : false
   }
@@ -455,7 +455,7 @@ resource "aws_cloudfront_response_headers_policy" "this" {
   }
 
   dynamic "custom_headers_config" {
-    for_each = length(lookup(var.cloudfront_response_headers_policy, "custom_headers_config", [])) == 0 ? [] : list(1)
+    for_each = length(lookup(var.cloudfront_response_headers_policy, "custom_headers_config", [])) == 0 ? [] : [1]
     content {
       dynamic "items" {
         for_each = length(lookup(var.cloudfront_response_headers_policy, "custom_headers_config", [])) == 0 ? [] : lookup(var.cloudfront_response_headers_policy, "custom_headers_config", [])
